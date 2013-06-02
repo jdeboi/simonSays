@@ -10,8 +10,8 @@ int index = 0;
 int top = 0;
 int randomArray[100];
 int oldState[4];
-int ledPins[] = {8, 9, 10, 11};
-int buttonPins[] = {4, 5, 6, 7};
+int ledPins[] = {2, 3, 4, 5};
+int buttonPins[] = {8, 9, 10, 11};
 
 void setup() {
   // set LED pins as output and button pins as input
@@ -19,14 +19,16 @@ void setup() {
     pinMode(ledPins[i], OUTPUT);
     pinMode(buttonPins[i], INPUT);
   }
+  Serial.begin(9600);
   // initialize the Simon Says array with random integers
   randomizeArray();
   // light up the first LED in the randomArray
   play(0);
+  
 }
 
 void loop(){
-  for(int i = 0; i < 4; i){
+  for(int i = 0; i < 4; i++){
     // light up LED if button it's currently being pressed
     setLEDState(i);
     // if button state changes (first pressed), 
@@ -52,15 +54,19 @@ void loop(){
 
 //randomize all the elements of the randomArray
 void randomizeArray() {
-  for (int i = 0; i < 100; i){
-    randomArray[i] = random(4);
+  for (int i = 0; i < 100; i++){
+    randomArray[i] = (int) random(4);
   }
 }
 
 // plays LEDs of the randomArray from the first
 // to the "top" LED
 void play(int index){
-  for (int i = 0; i <= index; i) {
+  for (int i = 0; i < 4; i++) {
+    digitalWrite(ledPins[i], LOW);
+  }
+  delay(500);
+  for (int i = 0; i <= index; i++) {
     digitalWrite(ledPins[randomArray[i]], HIGH);
     delay(1000);
     digitalWrite(ledPins[randomArray[i]], LOW);
@@ -75,6 +81,7 @@ boolean checkButtonState(int num){
   
   if(state == HIGH && old == LOW){
     oldState[num] = state;
+    delay(150);
     return true;
   }
   else {
@@ -96,25 +103,28 @@ void setLEDState(int num){
 
 //blink LEDs for the total time passed as a parameter
 void blinkLEDs(int duration){
-  for(int i = 0; i < 4; i){
+  for(int i = 0; i < 4; i++){
     digitalWrite(ledPins[i], HIGH);
   }
   delay(duration/3);
-  for(int i = 0; i < 4; i){
+  for(int i = 0; i < 4; i++){
     digitalWrite(ledPins[i], LOW);
   }
   delay(duration/3);
-  for(int i = 0; i < 4; i){
+  for(int i = 0; i < 4; i++){
     digitalWrite(ledPins[i], HIGH);
   }
   delay(duration/3);
-  for(int i = 0; i < 4; i){
+  for(int i = 0; i < 4; i++){
     digitalWrite(ledPins[i], LOW);
   }
 }
 
 //a function that resets variables and plays an end sequence
 void endGame(){
+  Serial.println(top);
+  Serial.println("GAME OVER");
+  Serial.println("----------------------------");
   blinkLEDs(1000);
   index = 0;
   top = 0;
